@@ -6,17 +6,14 @@ on:
 
 env:
   IMAGE_REGISTRY_URL: ghcr.io
-  ###############################################
-  ### Replace <username> with GitHub username ###
-  ###############################################
-  DOCKER_IMAGE_NAME: <username>-azure-ttt
-  AZURE_WEBAPP_NAME: <username>-ttt-app
-  ###############################################
+  # Replace <username> with kingpin1374 and ensure it is LOWERCASE
+  DOCKER_IMAGE_NAME: kingpin1374-azure-ttt
+  AZURE_WEBAPP_NAME: kingpin1374-ttt-app
 
 jobs:
   build:
+    # This ensures the workflow only runs when you add the 'stage' label
     if: contains(github.event.pull_request.labels.*.name, 'stage')
-
     runs-on: ubuntu-latest
 
     steps:
@@ -58,7 +55,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{env.IMAGE_REGISTRY_URL}}/${{ github.repository }}/${{env.DOCKER_IMAGE_NAME}}
+          # Convert to lowercase to prevent Docker errors
+          images: ${{ env.IMAGE_REGISTRY_URL }}/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}
           tags: |
             type=sha,format=long,prefix=
 
@@ -82,15 +80,16 @@ jobs:
 
       - uses: azure/docker-login@v1
         with:
-          login-server: ${{env.IMAGE_REGISTRY_URL}}
+          login-server: ${{ env.IMAGE_REGISTRY_URL }}
           username: ${{ github.actor }}
           password: ${{ secrets.CR_PAT }}
 
       - name: Deploy web app container
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{env.AZURE_WEBAPP_NAME}}
-          images: ${{env.IMAGE_REGISTRY_URL}}/${{ github.repository }}/${{env.DOCKER_IMAGE_NAME}}:${{ github.sha }}
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          # The image tag must match the long SHA generated in the build step
+          images: ${{ env.IMAGE_REGISTRY_URL }}/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
 
       - name: Azure logout via Azure CLI
         uses: azure/CLI@v2
