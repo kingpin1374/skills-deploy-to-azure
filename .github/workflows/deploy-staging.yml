@@ -7,8 +7,8 @@ on:
 env:
   IMAGE_REGISTRY_URL: ghcr.io
   # Replace <username> with kingpin1374 and ensure it is LOWERCASE
-  DOCKER_IMAGE_NAME:  kingpin1374-azure-ttt
-  AZURE_WEBAPP_NAME:  kingpin1374-ttt-app
+  DOCKER_IMAGE_NAME: kingpin1374-azure-ttt
+  AZURE_WEBAPP_NAME: kingpin1374-ttt-app
 
 jobs:
   build:
